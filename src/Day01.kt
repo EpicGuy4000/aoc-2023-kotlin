@@ -8,7 +8,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val stringsAndValues = mutableMapOf(
+        val stringsAndValues = mapOf(
             Pair("one", "1"),
             Pair("two", "2"),
             Pair("three", "3"),
@@ -32,13 +32,13 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    checkExpectedValue(part2(listOf("two1nine")), 29)
-    checkExpectedValue(part2(listOf("eightwothree")), 83)
+    checkExpectedValue(29, part2(listOf("two1nine")))
+    checkExpectedValue(83, part2(listOf("eightwothree")))
 
     val testInput = readInput("Day01_test")
-    checkExpectedValue(part1(testInput), 142)
+    checkExpectedValue(142, part1(testInput))
     val testInput2 = readInput("Day01_test2")
-    checkExpectedValue(part2(testInput2), 281)
+    checkExpectedValue(281, part2(testInput2))
 
 
     val input = readInput("Day01")
