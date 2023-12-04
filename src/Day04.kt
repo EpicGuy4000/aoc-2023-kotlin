@@ -15,13 +15,8 @@ fun parseScratchcard(input: String): Scratchcard {
 }
 
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.sumOf {
-            val card = parseScratchcard(it)
-
-            2.0.pow(card.getWinningNumberCount() - 1).toInt()
-        }
-    }
+    fun part1(input: List<String>): Int =
+        input.sumOf { 2.0.pow(parseScratchcard(it).getWinningNumberCount() - 1).toInt() }
 
     fun part2(input: List<String>): Int {
         val cards = input.map(::parseScratchcard).associateBy { it.cardNumber }
