@@ -1,42 +1,5 @@
 import kotlin.math.min
 
-//class Seed(val id: Int) {
-//    var soilId: Int = id
-//        set(value) {
-//            field = value
-//            fertilizerId = value
-//        }
-//    var fertilizerId: Int = id
-//        set(value) {
-//            field = value
-//            waterId = fertilizerId
-//        }
-//    var waterId: Int = id
-//        set(value) {
-//            field = value
-//            lightId = value
-//        }
-//    var lightId: Int = id
-//        set(value) {
-//            field = value
-//            temperatureId = value
-//        }
-//
-//    var temperatureId: Int = id
-//        set(value) {
-//            field = value
-//            humidityId = value
-//        }
-//
-//    var humidityId: Int = id
-//        set(value) {
-//            field = value
-//            locationId = value
-//        }
-//
-//    var locationId: Int = id
-//}
-
 fun main() {
     fun part1(input: List<String>): Long {
         val seeds = input.first().split(": ")[1].split(" ")
