@@ -13,33 +13,14 @@ class Node(val key: String) {
     override fun equals(other: Any?): Boolean = other is Node && other.key == key
 }
 
-fun gcd(a: Long, b: Long): Long {
-    var a = a
-    var b = b
-    while (b > 0) {
-        val temp = b
-        b = a % b // % is remainder
-        a = temp
-    }
-    return a
+fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
+
+fun lcm(numbers: List<Long>): Long = numbers.fold(1) { lcm, n ->
+    lcm * n / gcd(lcm, n)
 }
-
-fun lcm(a: Long, b: Long): Long {
-    return a * (b / gcd(a, b));
-}
-
-fun lcm(input: List<Long>): Long {
-    var result = input[0]
-    for (i in 1..input.lastIndex) {
-        result = lcm(result, input[i])
-    }
-
-    return result
-}
-
 
 fun main() {
-    fun part1(input: List<String>): Long {
+    fun parseInput(input: List<String>): Pair<String, MutableMap<String, Node>> {
         val movements = input.first()
         val nodeRegex = """^(\w+)\s+=\s+\((\w+),\s+(\w+)\)$""".toRegex()
 
@@ -54,56 +35,35 @@ fun main() {
 
             nodes
         }
+        return Pair(movements, parsed)
+    }
 
-        var current = parsed["AAA"]!!
-        val target = parsed["ZZZ"]!!
-        var steps = 0L
+    fun countStepsToTarget(isTarget: (Node) -> Boolean, startingNode: Node, movements: String, nodes: Map<String, Node>): Long {
+        var current = startingNode
+        var steps = 0
 
-        while (current != target) {
-            val i = (steps % movements.length).toInt()
+        while (!isTarget(current)) {
+            val i = steps % movements.length
 
-            current = parsed[current[movements[i]]]!!
+            current = nodes[current[movements[i]]]!!
             steps++
         }
 
-        return steps
+        return steps.toLong()
+    }
+
+    fun part1(input: List<String>): Long {
+        val (movements, nodes) = parseInput(input)
+
+        return countStepsToTarget({c -> c == nodes["ZZZ"]!! }, nodes["AAA"]!!, movements, nodes)
     }
 
     fun part2(input: List<String>): Long {
-        val movements = input.first()
-        val nodeRegex = """^(\w+)\s+=\s+\((\w+),\s+(\w+)\)$""".toRegex()
+        val (movements, nodes) = parseInput(input)
 
-        val parsed = input.drop(2).fold(mutableMapOf<String, Node>()) { nodes, line ->
-            val (_, key, left, right) = nodeRegex.find(line)!!.groupValues
-
-            val node = nodes[key] ?: Node(key)
-            node.left = left
-            node.right = right
-
-            nodes[key] = node
-
-            nodes
-        }
-
-        var currentNodes = parsed.values.filter { x -> x.key.endsWith('A') }
-        var steps = 0L
-
-        val x = currentNodes.map {
-            var current = it
-            var stepsLocal = 0
-            while (!current.key.endsWith('Z')) {
-                val i = (stepsLocal % movements.length)
-
-                current = parsed[current[movements[i]]]!!
-                stepsLocal++
-            }
-
-            stepsLocal
-        }
-
-        println(x)
-
-        return lcm(x.map { it.toLong() })
+        return lcm(nodes.values.filter { x -> x.key.endsWith('A') }.map {
+            countStepsToTarget({ c -> c.key.endsWith('Z') }, it, movements, nodes)
+        })
     }
 
     // test if implementation meets criteria from the description, like:
