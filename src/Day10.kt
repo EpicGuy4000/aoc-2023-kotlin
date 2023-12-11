@@ -11,6 +11,9 @@ val globalValidMoves = mapOf(
     Pair('.', listOf())
 )
 
+fun canMove(to: Char, direction: Pair<Int, Int>): Boolean =
+        globalValidMoves[to]!!.contains(Pair(-direction.first, -direction.second))
+
 class Cursor(private val start: Coordinates, val map: List<String>) {
     private var current = start
     private var invalidMove = Pair(0, 0)
@@ -67,32 +70,42 @@ fun main() {
         val cursor = Cursor(Coordinates(row.value.indexOf('S'), row.index), input)
         cursor.moveFullLap()
 
-        return input.withIndex().sumOf {
-            var inLoop = false
-            val y = it.index
+        val inLoopX = mutableSetOf<Coordinates>()
 
-            val counter = it.value.withIndex().fold(0) { acc, x ->
-                val coordinates = Coordinates(x.index, y)
+        for (y in 0..input.lastIndex) {
+            var enteringPipeChar = '.'
+            var counter = 0
+
+            fun currentlyInLoop() = counter % 2 == 1
+
+            for (x in 0..row.value.lastIndex) {
+                val coordinates = Coordinates(x, y)
                 val isCoordinatePartOfLoop = cursor.isInLoop(coordinates)
 
                 when {
-                    !isCoordinatePartOfLoop && !inLoop -> {
-                        acc
+                    !isCoordinatePartOfLoop && !currentlyInLoop() -> {
+                        enteringPipeChar = '.'
                     }
-                    !isCoordinatePartOfLoop && inLoop -> {
-                        acc + 1
+                    !isCoordinatePartOfLoop && currentlyInLoop() -> {
+                        inLoopX.add(coordinates)
+                        enteringPipeChar = '.'
                     }
                     else -> {
-                        inLoop = if (input[y][x.index] == '-') inLoop else !inLoop
-                        println("$coordinates was in loop (${input[coordinates.y][coordinates.x]}). Counter state: $acc. Loop state: $inLoop")
-                        acc
+                        if (enteringPipeChar == '.' || !canMove(input[y][x], Pair(1, 0))) {
+                            enteringPipeChar = input[y][x]
+                            counter++
+                        }
+
+                        if (enteringPipeChar == 'L' && input[y][x] == 'J'
+                                || enteringPipeChar == 'F' && input[y][x] == '7') {
+                            counter++
+                        }
                     }
                 }
-            }.toLong()
-
-            println("in row $it counted $counter")
-            counter
+            }
         }
+
+        return inLoopX.size.toLong()
     }
 
     // test if implementation meets criteria from the description, like:
@@ -110,10 +123,8 @@ L|-JF""".split("\r\n", "\n")
 
     checkExpectedValue(4, part1(simpleLoopInput))
     checkExpectedValue(4, part1(simpleLoopWithExtraPipesInput))
-
     checkExpectedValue(8, part1(readInput("Day10_test")))
-    //checkExpectedValue(4, part2(readInput("Day10_test2")))
-    checkExpectedValue(10, part2(readInput("Day10_test3")))
+    checkExpectedValue(1, part2(readInput("Day10_test")))
 
     val input = readInput("Day10")
     part1(input).println()
